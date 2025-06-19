@@ -10,7 +10,7 @@ export default function AuthSystem() {
   const handleSignIn = (token) => {
     //console.log("Login successful with token:", token);
     // Here you can redirect to another page if you want:
-     window.location.href = "/dashboard";
+     window.location.href = "/protected";
    
   };
 
