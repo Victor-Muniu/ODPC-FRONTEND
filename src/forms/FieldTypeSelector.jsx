@@ -1,5 +1,4 @@
-import React from "react"
-import { Type, Mail, Hash, FileText, CheckSquare, Calendar, Radio } from "lucide-react"
+import { Type, Mail, Hash, FileText, CheckSquare, Calendar, Radio, Info, PenTool, File } from "lucide-react"
 
 const FieldTypeSelector = ({ value, onChange }) => {
   const fieldTypes = [
@@ -11,7 +10,10 @@ const FieldTypeSelector = ({ value, onChange }) => {
     { value: "checkbox", label: "Checkbox", icon: CheckSquare },
     { value: "radio", label: "Radio Button", icon: Radio },
     { value: "date", label: "Date", icon: Calendar },
-    { value: "file", label: "File Upload", icon: FileText },
+    { value: "file", label: "File Upload", icon: File },
+    { value: "signature", label: "Signature", icon: PenTool },
+    { value: "info", label: "Info/Declaration", icon: Info },
+    { value: "static", label: "Static Text", icon: FileText },
   ]
 
   return (

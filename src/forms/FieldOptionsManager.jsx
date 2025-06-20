@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import { Plus, Trash2 } from "lucide-react"
 
 const FieldOptionsManager = ({ options, onChange, fieldType }) => {
@@ -48,13 +48,9 @@ const FieldOptionsManager = ({ options, onChange, fieldType }) => {
           onChange={(e) => setNewOption(e.target.value)}
           className="form-input"
           placeholder="Enter option text"
+          onKeyPress={(e) => e.key === "Enter" && addOption()}
         />
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={addOption}
-          disabled={!newOption.trim()}
-        >
+        <button type="button" className="btn-primary" onClick={addOption} disabled={!newOption.trim()}>
           <Plus size={16} />
           Add Option
         </button>

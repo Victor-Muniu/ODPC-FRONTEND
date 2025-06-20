@@ -3,6 +3,7 @@ import Sidebar from "../components/Sidebar";
 import Dashboard from "../modules/Dashboard";
 import FormBuilder from "../modules/FormBuilder";
 import FormRequest from "../components/FormRequest";
+import PublicFormPage from "../components/PublicFormPage";
 import { Bell, Search, User } from "lucide-react";
 import { getUserRole, getUserInfo } from "../utils/Auth";
 import './Home.css'
@@ -30,8 +31,8 @@ export default function Home() {
         return <FormBuilder />;
       case "requests":
         return <FormRequest />;
-      case "approvals":
-        return <div className="coming-soon">Approvals - Coming Soon</div>;
+      case "form-renderer":
+        return <PublicFormPage />
       case "submissions":
         return <div className="coming-soon">Form Submissions - Coming Soon</div>;
       case "analytics":

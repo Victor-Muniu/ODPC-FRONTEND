@@ -1,73 +1,75 @@
-import React, { useState } from "react"
+import { useState } from "react"
+import { Eye, EyeOff } from "lucide-react"
 
 export const SignUpForm = ({ onSubmit }) => {
-  const [formData, setFormData] = useState({ 
-    firstname: "", 
-    lastname: "", 
-    email: "", 
-    department: "", 
-    designation: "", 
-    username: "", 
-    password: "", 
-    confirmPassword: "", 
-    agreeToTerms: false 
+  const [formData, setFormData] = useState({
+    firstname: "",
+    lastname: "",
+    email: "",
+    department: "",
+    designation: "",
+    username: "",
+    password: "",
+    confirmPassword: "",
+    agreeToTerms: false,
   })
-  
-  const [errors, setErrors] = useState({});
-  const [isLoading, setIsLoading] = useState(false);
-  const [passwordStrength, setPasswordStrength] = useState(0);
-  const [registrationStatus, setRegistrationStatus] = useState({ type: null, message: '' });
+
+  const [errors, setErrors] = useState({})
+  const [isLoading, setIsLoading] = useState(false)
+  const [passwordStrength, setPasswordStrength] = useState(0)
+  const [registrationStatus, setRegistrationStatus] = useState({ type: null, message: "" })
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const calculatePasswordStrength = (password) => {
-    let strength = 0;
-    if (password.length >= 8) strength++;
-    if (/[a-z]/.test(password)) strength++;
-    if (/[A-Z]/.test(password)) strength++;
-    if (/[0-9]/.test(password)) strength++;
-    if (/[^A-Za-z0-9]/.test(password)) strength++;
-    return strength;
-  };
+    let strength = 0
+    if (password.length >= 8) strength++
+    if (/[a-z]/.test(password)) strength++
+    if (/[A-Z]/.test(password)) strength++
+    if (/[0-9]/.test(password)) strength++
+    if (/[^A-Za-z0-9]/.test(password)) strength++
+    return strength
+  }
 
   const validateForm = () => {
-    const newErrors = {};
+    const newErrors = {}
 
-    if (!formData.firstname.trim()) newErrors.firstname = "First name is required";
-    if (!formData.lastname.trim()) newErrors.lastname = "Last name is required";
+    if (!formData.firstname.trim()) newErrors.firstname = "First name is required"
+    if (!formData.lastname.trim()) newErrors.lastname = "Last name is required"
 
     if (!formData.email) {
-      newErrors.email = "Email is required";
+      newErrors.email = "Email is required"
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
+      newErrors.email = "Please enter a valid email address"
     }
-    if (!formData.department.trim()) newErrors.department = "Department is required";
-    if (!formData.designation.trim()) newErrors.designation = "Designation is required";
+    if (!formData.department.trim()) newErrors.department = "Department is required"
+    if (!formData.designation.trim()) newErrors.designation = "Designation is required"
 
     if (!formData.username.trim()) {
-      newErrors.username = "Username is required";
+      newErrors.username = "Username is required"
     } else if (formData.username.length < 3) {
-      newErrors.username = "Username must be at least 3 characters";
+      newErrors.username = "Username must be at least 3 characters"
     }
     if (!formData.password) {
-      newErrors.password = "Password is required";
+      newErrors.password = "Password is required"
     } else if (passwordStrength < 4) {
-      newErrors.password = "Password does not meet security requirements";
+      newErrors.password = "Password does not meet security requirements"
     }
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
+      newErrors.confirmPassword = "Passwords do not match"
     }
-   
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+    setErrors(newErrors)
+    return Object.keys(newErrors).length === 0
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    if (!validateForm()) return;
+    if (!validateForm()) return
 
-    setIsLoading(true);
-    setRegistrationStatus({ type: null, message: '' });
+    setIsLoading(true)
+    setRegistrationStatus({ type: null, message: "" })
 
     try {
       const registrationData = {
@@ -78,71 +80,81 @@ export const SignUpForm = ({ onSubmit }) => {
         designation: formData.designation,
         username: formData.username,
         password: formData.password,
-      };
+      }
       const response = await fetch("http://localhost:5000/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(registrationData),
-      });
+      })
 
-      const result = await response.json();
+      const result = await response.json()
 
       if (response.ok) {
-        setRegistrationStatus({ type: "success", message: "Registration successful!" });
+        setRegistrationStatus({ type: "success", message: "Registration successful!" })
 
         if (result.token) {
-          localStorage.setItem("authToken", result.token);
+          localStorage.setItem("authToken", result.token)
         }
         if (result.refreshToken) {
-          localStorage.setItem("refreshToken", result.refreshToken);
+          localStorage.setItem("refreshToken", result.refreshToken)
         }
-        onSubmit && onSubmit(result);
-        setFormData({ firstname: "", lastname: "", email: "", department: "", designation: "", username: "", password: "", confirmPassword: "", agreeToTerms: false });
+        onSubmit && onSubmit(result)
+        setFormData({
+          firstname: "",
+          lastname: "",
+          email: "",
+          department: "",
+          designation: "",
+          username: "",
+          password: "",
+          confirmPassword: "",
+          agreeToTerms: false,
+        })
       } else {
-        setRegistrationStatus({ type: "error", message: result.message || "Registration failed. Please try again." });
+        setRegistrationStatus({ type: "error", message: result.message || "Registration failed. Please try again." })
       }
     } catch (error) {
-      console.error("Registration error:", error);
-      setRegistrationStatus({ type: "error", message: "Network error. Please check your connection and try again." });
+      console.error("Registration error:", error)
+      setRegistrationStatus({ type: "error", message: "Network error. Please check your connection and try again." })
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
   const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value, type, checked } = e.target
 
     setFormData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
-    }));
+    }))
 
     if (name === "password") {
-      setPasswordStrength(calculatePasswordStrength(value)); 
+      setPasswordStrength(calculatePasswordStrength(value))
     }
     if (errors[name]) {
-      setErrors((prev) => ({ ...prev, [name]: '' }))
+      setErrors((prev) => ({ ...prev, [name]: "" }))
     }
     if (registrationStatus.type) {
-      setRegistrationStatus({ type: null, message: '' })
+      setRegistrationStatus({ type: null, message: "" })
     }
-  };
+  }
 
   const getStrengthLabel = (strength) => {
-    if (strength <= 1) return "Very Weak";
-    if (strength == 2) return "Weak";
-    if (strength == 3) return "Fair";
-    if (strength == 4) return "Good";
-    if (strength == 5) return "Strong";
-    return "";
-  };
-  
+    if (strength <= 1) return "Very Weak"
+    if (strength == 2) return "Weak"
+    if (strength == 3) return "Fair"
+    if (strength == 4) return "Good"
+    if (strength == 5) return "Strong"
+    return ""
+  }
+
   const getStrengthClass = (strength) => {
-    if (strength <= 2) return "weak";
-    if (strength <= 3) return "medium";
-    return "active";
-  };
-  
+    if (strength <= 2) return "weak"
+    if (strength <= 3) return "medium"
+    return "active"
+  }
+
   return (
     <form className="auth-form" onSubmit={handleSubmit}>
       <div className="form-row">
@@ -212,9 +224,9 @@ export const SignUpForm = ({ onSubmit }) => {
           >
             <option value="">Select Department</option>
             <option value="Legal Affairs">Legal Affairs</option>
-            <option value="Compliance & Enforcement">Compliance & Enforcement</option>
+            <option value="Compliance & Enforcement">Complaints Investigation & Enforcement</option>
             <option value="Policy & Research">Policy & Research</option>
-            <option value="Investigations">Investigations</option>
+            <option value="Investigations">Drivers</option>
             <option value="Public Relations">Public Relations</option>
             <option value="Administration">Administration</option>
             <option value="Finance & Procurement">Finance & Procurement</option>
@@ -265,16 +277,26 @@ export const SignUpForm = ({ onSubmit }) => {
           <label htmlFor="password" className="form-label">
             Password
           </label>
-          <input
-            type="password"
-            id="password"
-            name="password"
-            className={`form-input ${errors.password ? "error" : ""}`}
-            value={formData.password}
-            onChange={handleInputChange}
-            placeholder="Create a secure password"
-            autoComplete="new-password"
-          />
+          <div className="password-input-container">
+            <input
+              type={showPassword ? "text" : "password"}
+              id="password"
+              name="password"
+              className={`form-input ${errors.password ? "error" : ""}`}
+              value={formData.password}
+              onChange={handleInputChange}
+              placeholder="Create a secure password"
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              className="password-toggle-btn"
+              onClick={() => setShowPassword(!showPassword)}
+              aria-label={showPassword ? "Hide password" : "Show password"}
+            >
+              {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
           {formData.password && (
             <div className="password-strength">
               <div className="strength-indicator">
@@ -298,22 +320,29 @@ export const SignUpForm = ({ onSubmit }) => {
           <label htmlFor="confirmPassword" className="form-label">
             Confirm Password
           </label>
-          <input
-            type="password"
-            id="confirmPassword"
-            name="confirmPassword"
-            className={`form-input ${errors.confirmPassword ? "error" : ""}`}
-            value={formData.confirmPassword}
-            onChange={handleInputChange}
-            placeholder="Confirm your password"
-            autoComplete="new-password"
-          />
+          <div className="password-input-container">
+            <input
+              type={showConfirmPassword ? "text" : "password"}
+              id="confirmPassword"
+              name="confirmPassword"
+              className={`form-input ${errors.confirmPassword ? "error" : ""}`}
+              value={formData.confirmPassword}
+              onChange={handleInputChange}
+              placeholder="Confirm your password"
+              autoComplete="new-password"
+            />
+            <button
+              type="button"
+              className="password-toggle-btn"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              aria-label={showConfirmPassword ? "Hide password" : "Show password"}
+            >
+              {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+            </button>
+          </div>
           {errors.confirmPassword && <div className="error-message">⚠️ {errors.confirmPassword}</div>}
         </div>
       </div>
-
-     
-      
 
       <button type="submit" className="submit-button" disabled={isLoading}>
         {isLoading && <span className="loading-spinner"></span>}
@@ -336,5 +365,4 @@ export const SignUpForm = ({ onSubmit }) => {
       )}
     </form>
   )
-};
-
+}

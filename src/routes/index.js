@@ -3,6 +3,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import AuthSystem from "../auth/AuthSystem";
 import AppLayout from "../layout/AppLayout";
 import Home from "../pages/Home";
+import PasswordResetForm from "../components/PasswordResetForm";
 
 export const router = createBrowserRouter([
     {
@@ -12,6 +13,16 @@ export const router = createBrowserRouter([
             {
                 index: true,
                 element: <AuthSystem />
+            }
+        ]
+    },
+    {
+        path:'/reset-password',
+        element: <AppLayout />,
+        children: [
+            {
+                index: true,
+                element: <PasswordResetForm />
             }
         ]
     },

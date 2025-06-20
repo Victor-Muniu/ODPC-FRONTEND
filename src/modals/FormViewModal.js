@@ -1,11 +1,11 @@
-import React from "react"
 import { X, Calendar, User, Building, Shield, FileText } from "lucide-react"
-import Logo from "../download.png"
+
 const FormViewModal = ({ form, isOpen, onClose }) => {
   if (!isOpen || !form) return null
 
   const formatDate = (timestamp) => {
-    const date = new Date(timestamp._seconds * 1000)
+    if (!timestamp) return "Unknown"
+    const date = timestamp._seconds ? new Date(timestamp._seconds * 1000) : new Date(timestamp)
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
@@ -26,78 +26,145 @@ const FormViewModal = ({ form, isOpen, onClose }) => {
       date: "Date",
       file: "File Upload",
       radio: "Radio Button",
+      signature: "Signature",
+      info: "Info/Declaration",
+      static: "Static Text",
     }
     return typeLabels[type] || type
   }
 
-  const renderPreviewField = (field, index) => {
+  const renderFieldPreview = (field, index) => {
     switch (field.type) {
-      case "textarea":
-        return (
-          <textarea
-            key={index}
-            className="form-preview-input"
-            placeholder={`Enter ${field.label.toLowerCase()}`}
-            disabled
-            rows={3}
-          />
-        )
-
-      case "select":
-        return (
-          <select key={index} className="form-preview-input" disabled>
-            <option value="">Select {field.label.toLowerCase()}</option>
-            {field.options?.map((option, i) => (
-              <option key={i} value={option}>
-                {option}
-              </option>
-            ))}
-          </select>
-        )
-
       case "checkbox":
         return (
-          <div key={index} className="checkbox-options-preview">
-            {field.options?.map((option, i) => (
-              <div key={i} className="checkbox-option">
-                <input type="checkbox" id={`modal-checkbox-${index}-${i}`} disabled />
-                <label htmlFor={`modal-checkbox-${index}-${i}`}>{option}</label>
-              </div>
-            ))}
+          <div key={index} className="form-field-preview">
+            <div className="field-info">
+              <span className="field-label">{field.label}</span>
+              <span className="field-type">{getFieldTypeLabel(field.type)}</span>
+            </div>
+            <div className="checkbox-options-preview">
+              {field.options?.map((option, i) => (
+                <div key={i} className="checkbox-preview">
+                  <input type="checkbox" disabled />
+                  <span>{option}</span>
+                </div>
+              ))}
+            </div>
           </div>
         )
 
       case "radio":
         return (
-          <div key={index} className="radio-options-preview">
-            {field.options?.map((option, i) => (
-              <div key={i} className="radio-option">
-                <input type="radio" name={`modal-radio-${index}`} id={`modal-radio-${index}-${i}`} disabled />
-                <label htmlFor={`modal-radio-${index}-${i}`}>{option}</label>
-              </div>
-            ))}
+          <div key={index} className="form-field-preview">
+            <div className="field-info">
+              <span className="field-label">{field.label}</span>
+              <span className="field-type">{getFieldTypeLabel(field.type)}</span>
+            </div>
+            <div className="radio-options-preview">
+              {field.options?.map((option, i) => (
+                <div key={i} className="checkbox-preview">
+                  <input type="radio" name={`preview-${index}`} disabled />
+                  <span>{option}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )
+
+      case "select":
+        return (
+          <div key={index} className="form-field-preview">
+            <div className="field-info">
+              <span className="field-label">{field.label}</span>
+              <span className="field-type">{getFieldTypeLabel(field.type)}</span>
+            </div>
+            <select className="form-preview-input" disabled>
+              <option>Select an option...</option>
+              {field.options?.map((option, i) => (
+                <option key={i}>{option}</option>
+              ))}
+            </select>
+          </div>
+        )
+
+      case "textarea":
+        return (
+          <div key={index} className="form-field-preview">
+            <div className="field-info">
+              <span className="field-label">{field.label}</span>
+              <span className="field-type">{getFieldTypeLabel(field.type)}</span>
+            </div>
+            <textarea className="form-preview-input" placeholder="Text area input..." disabled rows={3} />
           </div>
         )
 
       case "file":
         return (
-          <div key={index} className="file-preview">
-            <div className="file-upload-area">
-              <FileText size={24} />
-              <span>Click to upload or drag and drop</span>
+          <div key={index} className="form-field-preview">
+            <div className="field-info">
+              <span className="field-label">{field.label}</span>
+              <span className="field-type">{getFieldTypeLabel(field.type)}</span>
+            </div>
+            <div className="file-preview">
+              <div className="file-upload-area">
+                <FileText size={24} />
+                <span>Click to upload file</span>
+              </div>
+            </div>
+          </div>
+        )
+
+      case "signature":
+        return (
+          <div key={index} className="form-field-preview">
+            <div className="field-info">
+              <span className="field-label">{field.label}</span>
+              <span className="field-type">{getFieldTypeLabel(field.type)}</span>
+            </div>
+            <div className="signature-placeholder">Click to sign</div>
+          </div>
+        )
+
+      case "info":
+        return (
+          <div key={index} className="form-field-preview">
+            <div className="info-field">
+              <h4>{field.label}</h4>
+              {field.text && (
+                <ul>
+                  {field.text.map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        )
+
+      case "static":
+        return (
+          <div key={index} className="form-field-preview">
+            <div className="info-field">
+              <h4>{field.label}</h4>
+              <p>{field.content}</p>
             </div>
           </div>
         )
 
       default:
         return (
-          <input
-            key={index}
-            type={field.type}
-            className="form-preview-input"
-            placeholder={`Enter ${field.label.toLowerCase()}`}
-            disabled
-          />
+          <div key={index} className="form-field-preview">
+            <div className="field-info">
+              <span className="field-label">{field.label}</span>
+              <span className="field-type">{getFieldTypeLabel(field.type)}</span>
+            </div>
+            <input
+              type={field.type}
+              className="form-preview-input"
+              placeholder={`${getFieldTypeLabel(field.type)} input...`}
+              disabled
+            />
+          </div>
         )
     }
   }
@@ -107,11 +174,11 @@ const FormViewModal = ({ form, isOpen, onClose }) => {
       <div className="modal-container" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <div className="modal-title">
-            <h2>Form Preview</h2>
-            <p>View form details and structure</p>
+            <h2>Form Details</h2>
+            <p>View form configuration and preview</p>
           </div>
           <button className="modal-close" onClick={onClose}>
-            <X size={24} />
+            <X size={20} />
           </button>
         </div>
 
@@ -120,7 +187,7 @@ const FormViewModal = ({ form, isOpen, onClose }) => {
             <div className="form-info-header">
               <h3>{form.formName}</h3>
               <div className="form-badges">
-                <span className="status-badge published">Published</span>
+                <span className={`status-badge ${form.status || "published"}`}>{form.status || "Published"}</span>
               </div>
             </div>
 
@@ -130,12 +197,12 @@ const FormViewModal = ({ form, isOpen, onClose }) => {
                 <span>Department: {form.department}</span>
               </div>
               <div className="metadata-item">
-                <Calendar size={16} />
-                <span>Created: {formatDate(form.createdAt)}</span>
+                <FileText size={16} />
+                <span>{form.fields?.length || 0} Fields</span>
               </div>
               <div className="metadata-item">
-                <FileText size={16} />
-                <span>Fields: {form.fields.length}</span>
+                <Calendar size={16} />
+                <span>Created: {formatDate(form.createdAt)}</span>
               </div>
             </div>
           </div>
@@ -145,51 +212,33 @@ const FormViewModal = ({ form, isOpen, onClose }) => {
               <Shield size={18} />
               Approval Workflow
             </h4>
-            <div className="approvers-list-view">
-              {form.approvers.map((approver, index) => (
-                <div key={index} className="approver-card">
-                  <User size={16} />
-                  <span>{approver.role}</span>
-                </div>
-              ))}
-              {form.approvers.length === 0 && <p className="no-approvers">No approvers configured</p>}
-            </div>
+            {form.approvers && form.approvers.length > 0 ? (
+              <div className="approvers-list-view">
+                {form.approvers.map((approver, index) => (
+                  <div key={index} className="approver-card">
+                    <User size={16} />
+                    <span>{approver.role}</span>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <p className="no-approvers">No approvers configured</p>
+            )}
           </div>
 
           <div className="form-preview-section">
             <h4>
               <FileText size={18} />
-              Form Structure
+              Form Preview
             </h4>
             <div className="form-preview-container">
-              <div className="form-header-preview">
-                <div className="form-logo-section">
-                  <img src={Logo} alt="ODPC Logo" className="form-logo" />
-                  <div className="form-org-info">
-                    <h4>Office of the Data Protection Commissioner</h4>
-                    <p>Republic of Kenya</p>
-                  </div>
-                </div>
-                <div className="form-title-section">
-                  <h3>{form.formName}</h3>
-                  <p className="form-subtitle">Please fill out all required fields below</p>
-                </div>
-              </div>
-
-              {form.fields.map((field, index) => (
-                <div key={index} className="form-field-preview">
-                  <div className="field-info">
-                    <label className="field-label">{field.label}</label>
-                    <span className="field-type">{getFieldTypeLabel(field.type)}</span>
-                  </div>
-                  {renderPreviewField(field, index)}
-                </div>
-              ))}
-
-              {form.fields.length === 0 && (
+              {form.fields && form.fields.length > 0 ? (
+                form.fields.map((field, index) => renderFieldPreview(field, index))
+              ) : (
                 <div className="no-fields">
                   <FileText size={48} />
-                  <p>No fields configured</p>
+                  <h3>No fields configured</h3>
+                  <p>This form doesn't have any fields yet.</p>
                 </div>
               )}
             </div>
@@ -199,10 +248,6 @@ const FormViewModal = ({ form, isOpen, onClose }) => {
         <div className="modal-footer">
           <button className="btn-secondary" onClick={onClose}>
             Close
-          </button>
-          <button className="btn-primary">
-            <FileText size={16} />
-            Export Form
           </button>
         </div>
       </div>

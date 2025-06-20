@@ -15,6 +15,8 @@ import {
   Lock,
   FileCheck,
   UserCog,
+  FormInput,
+
 } from "lucide-react";
 import { getUserRole, getUserInfo } from "../utils/Auth";
 import Logo from './download.png'
@@ -34,19 +36,11 @@ const Sidebar = ({ isCollapsed, onToggle, activeItem = "dashboard", onItemClick 
     const baseItems = [{ id: "dashboard", label: "Dashboard", icon: Home }];
 
     const roleBasedItems = {
-      super_admin: [
-        { id: "configurations", label: "Form Configurations", icon: Settings },
-        { id: "requests", label: "Form Requests", icon: FileText },
-        { id: "approvals", label: "Approvals", icon: Shield },
-        { id: "submissions", label: "Form Submissions", icon: Users },
-        { id: "analytics", label: "Analytics", icon: BarChart3 },
-        { id: "user-management", label: "User Management", icon: UserCog },
-        { id: "system-settings", label: "System Settings", icon: Database },
-        { id: "audit-logs", label: "Audit Logs", icon: FileCheck },
-        { id: "help", label: "Help & Support", icon: HelpCircle },
-      ],
+      
       admin: [
         { id: "configurations", label: "Form Configurations", icon: Settings },
+        { id: "form-renderer", label: "Form Renderer", icon: FormInput },
+        
         { id: "requests", label: "Form Requests", icon: FileText },
         { id: "approvals", label: "Approvals", icon: Shield },
         { id: "submissions", label: "Form Submissions", icon: Users },
