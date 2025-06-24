@@ -7,6 +7,7 @@ import PublicFormPage from "../components/PublicFormPage";
 import { Bell, Search, User } from "lucide-react";
 import { getUserRole, getUserInfo } from "../utils/Auth";
 import './Home.css'
+import UserManagement from "../components/UserManagement";
 
 export default function Home() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -33,6 +34,8 @@ export default function Home() {
         return <FormRequest />;
       case "form-renderer":
         return <PublicFormPage />
+      case "user-management":
+        return <UserManagement />;
       case "submissions":
         return <div className="coming-soon">Form Submissions - Coming Soon</div>;
       case "analytics":

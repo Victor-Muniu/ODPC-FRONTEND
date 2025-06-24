@@ -87,10 +87,10 @@ body {
 }
 
 .agency-logo {
-  width: 120px;
-  height: 120px;
+  width: 150px;
+  height: 100px;
   margin: 0 auto 30px;
-  background: transparent;
+  background: rgba(255, 255, 255, 0.1); /* Add highlighted background like sidebar */
   border-radius: 50%;
   display: flex;
   align-items: center;
@@ -98,6 +98,8 @@ body {
   padding: 10px;
   aspect-ratio: 1 / 1;
   overflow: hidden;
+  border: 2px solid rgba(255, 255, 255, 0.2); /* Add subtle border for definition */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Add subtle shadow for depth */
 }
 
 .agency-logo img {

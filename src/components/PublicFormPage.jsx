@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect } from "react"
 import { RefreshCw, FileText, Send, ArrowLeft } from "lucide-react"
 import SignatureField from "../forms/SignatureField"
@@ -307,6 +309,28 @@ const PublicFormPage = () => {
               onChange={(value) => handleInputChange(fieldName, value)}
               required={field.required}
             />
+          </div>
+        )
+
+      case "declaration":
+        return (
+          <div key={index} className="dynamic-form-field">
+            <div className="declaration-field">
+              <h4>{field.label}</h4>
+              <div className="declaration-content">
+                <p>{field.content}</p>
+              </div>
+              <div className="declaration-checkbox">
+                <input
+                  type="checkbox"
+                  id={fieldName}
+                  checked={fieldValue || false}
+                  onChange={(e) => handleInputChange(fieldName, e.target.checked)}
+                  required={field.required}
+                />
+                <label htmlFor={fieldName}>I agree to the above declaration</label>
+              </div>
+            </div>
           </div>
         )
 

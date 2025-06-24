@@ -1,4 +1,4 @@
-import { X, Calendar, User, Building, Shield, FileText } from "lucide-react"
+import { X, Calendar, Building, Shield, FileText } from "lucide-react"
 
 const FormViewModal = ({ form, isOpen, onClose }) => {
   if (!isOpen || !form) return null
@@ -29,12 +29,64 @@ const FormViewModal = ({ form, isOpen, onClose }) => {
       signature: "Signature",
       info: "Info/Declaration",
       static: "Static Text",
+      declaration: "Declaration/Agreement",
     }
     return typeLabels[type] || type
   }
 
+  const getStageLabel = (stage) => {
+    const stageLabels = {
+      recommendation: "Recommendation",
+      issuance: "Issuance",
+      approval: "Approval",
+      review: "Review",
+      verification: "Verification",
+      authorization: "Authorization",
+    }
+    return stageLabels[stage] || stage.charAt(0).toUpperCase() + stage.slice(1)
+  }
+
+  const getRoleCriteriaLabel = (criteria) => {
+    const roleLabels = {
+      hod_or_assistant: "HOD or Assistant",
+      ict_officer: "ICT Officer",
+      head_of_ict: "Head of ICT",
+      finance_officer: "Finance Officer",
+      head_of_finance: "Head of Finance",
+      hr_officer: "HR Officer",
+      head_of_hr: "Head of HR",
+      procurement_officer: "Procurement Officer",
+      head_of_procurement: "Head of Procurement",
+      admin_officer: "Admin Officer",
+      head_of_admin: "Head of Admin",
+      director: "Director",
+      deputy_director: "Deputy Director",
+      commissioner: "Commissioner",
+    }
+    return roleLabels[criteria] || criteria.replace(/_/g, " ").replace(/\b\w/g, (l) => l.toUpperCase())
+  }
+
   const renderFieldPreview = (field, index) => {
     switch (field.type) {
+      case "declaration":
+        return (
+          <div key={index} className="form-field-preview declaration-preview">
+            <div className="field-info">
+              <span className="field-label">{field.label}</span>
+              <span className="field-type">{getFieldTypeLabel(field.type)}</span>
+            </div>
+            <div className="declaration-content-preview">
+              <div className="declaration-text">
+                <p>{field.content}</p>
+              </div>
+              <div className="declaration-checkbox-preview">
+                <input type="checkbox" disabled />
+                <span>I agree to the above declaration</span>
+              </div>
+            </div>
+          </div>
+        )
+
       case "checkbox":
         return (
           <div key={index} className="form-field-preview">
@@ -207,22 +259,35 @@ const FormViewModal = ({ form, isOpen, onClose }) => {
             </div>
           </div>
 
-          <div className="approvers-section">
+          {/* Workflow Section */}
+          <div className="workflow-section">
             <h4>
               <Shield size={18} />
               Approval Workflow
             </h4>
-            {form.approvers && form.approvers.length > 0 ? (
-              <div className="approvers-list-view">
-                {form.approvers.map((approver, index) => (
-                  <div key={index} className="approver-card">
-                    <User size={16} />
-                    <span>{approver.role}</span>
+            {form.workflow && form.workflow.steps && form.workflow.steps.length > 0 ? (
+              <div className="workflow-steps-display">
+                {form.workflow.steps.map((step, index) => (
+                  <div key={index} className="workflow-step-display">
+                    <div className="step-indicator">
+                      <div className="step-number">{index + 1}</div>
+                      <div
+                        className="step-line"
+                        style={{ display: index === form.workflow.steps.length - 1 ? "none" : "block" }}
+                      ></div>
+                    </div>
+                    <div className="step-details">
+                      <div className="step-header">
+                        <h5>{getStageLabel(step.stage)}</h5>
+                        <span className="step-role">{getRoleCriteriaLabel(step.roleCriteria)}</span>
+                      </div>
+                      {step.description && <p className="step-description">{step.description}</p>}
+                    </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <p className="no-approvers">No approvers configured</p>
+              <p className="no-workflow">No workflow configured</p>
             )}
           </div>
 

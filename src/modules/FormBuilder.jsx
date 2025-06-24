@@ -1,19 +1,11 @@
-import React, { useState, useEffect } from "react";
-import {
-  Plus,
-  Trash2,
-  Edit3,
-  Save,
-  Eye,
-  FileText,
-  RefreshCw,
-} from "lucide-react";
-import FormViewModal from "../modals/FormViewModal";
-import FieldTypeSelector from "../forms/FieldTypeSelector";
-import FieldOptionsManager from "../forms/FieldOptionsManager";
-import FieldPreview from "../forms/FieldPreview";
+import { useState, useEffect } from "react"
+import { Plus, Trash2, Edit3, Save, Eye, FileText, RefreshCw, ArrowRight } from "lucide-react"
+import FormViewModal from "../modals/FormViewModal"
+import FieldTypeSelector from "../forms/FieldTypeSelector"
+import FieldOptionsManager from "../forms/FieldOptionsManager"
+import FieldPreview from "../forms/FieldPreview"
 
-const FormBuilder = () =>{
+const FormBuilder = () => {
   const [forms, setForms] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
@@ -28,10 +20,42 @@ const FormBuilder = () =>{
     text: [],
     content: "",
   })
-  const [newApprover, setNewApprover] = useState("")
+  const [newWorkflowStep, setNewWorkflowStep] = useState({
+    stage: "",
+    roleCriteria: "",
+    description: "",
+  })
   const [isPublishing, setIsPublishing] = useState(false)
   const [viewModalOpen, setViewModalOpen] = useState(false)
   const [viewingForm, setViewingForm] = useState(null)
+
+  // Workflow stage options
+  const workflowStages = [
+    { value: "recommendation", label: "Recommendation" },
+    { value: "issuance", label: "Issuance" },
+    { value: "approval", label: "Approval" },
+    { value: "review", label: "Review" },
+    { value: "verification", label: "Verification" },
+    { value: "authorization", label: "Authorization" },
+  ]
+
+  // Role criteria options
+  const roleCriteriaOptions = [
+    { value: "hod_or_assistant", label: "HOD or Assistant (Requester's Department)" },
+    { value: "ict_officer", label: "ICT Officer" },
+    { value: "head_of_ict", label: "Head of ICT" },
+    { value: "finance_officer", label: "Finance Officer" },
+    { value: "head_of_finance", label: "Head of Finance" },
+    { value: "hr_officer", label: "HR Officer" },
+    { value: "head_of_hr", label: "Head of HR" },
+    { value: "procurement_officer", label: "Procurement Officer" },
+    { value: "head_of_procurement", label: "Head of Procurement" },
+    { value: "admin_officer", label: "Admin Officer" },
+    { value: "head_of_admin", label: "Head of Admin" },
+    { value: "director", label: "Director" },
+    { value: "deputy_director", label: "Deputy Director" },
+    { value: "commissioner", label: "Commissioner" },
+  ]
 
   useEffect(() => {
     loadForms()
@@ -103,7 +127,9 @@ const FormBuilder = () =>{
       formName: "New Form",
       slug: `new_form_${Date.now()}`,
       fields: [],
-      approvers: [],
+      workflow: {
+        steps: [],
+      },
       department: "",
       status: "draft",
       createdAt: new Date(),
@@ -140,6 +166,7 @@ const FormBuilder = () =>{
       ...(newField.options && newField.options.length > 0 ? { options: newField.options } : {}),
       ...(newField.type === "info" && newField.text && newField.text.length > 0 ? { text: newField.text } : {}),
       ...(newField.type === "static" && newField.content ? { content: newField.content } : {}),
+      ...(newField.type === "declaration" && newField.content ? { content: newField.content } : {}),
     }
 
     setSelectedForm({
@@ -166,30 +193,49 @@ const FormBuilder = () =>{
     })
   }
 
-  const addApprover = () => {
-    if (!selectedForm || !newApprover.trim()) return
+  const addWorkflowStep = () => {
+    if (!selectedForm || !newWorkflowStep.stage || !newWorkflowStep.roleCriteria) return
 
-    const approver = { role: newApprover.trim() }
+    const step = {
+      stage: newWorkflowStep.stage,
+      roleCriteria: newWorkflowStep.roleCriteria,
+      description: newWorkflowStep.description || `${newWorkflowStep.stage} step`,
+    }
 
     setSelectedForm({
       ...selectedForm,
-      approvers: [...selectedForm.approvers, approver],
+      workflow: {
+        ...selectedForm.workflow,
+        steps: [...(selectedForm.workflow?.steps || []), step],
+      },
     })
 
-    setNewApprover("")
+    setNewWorkflowStep({
+      stage: "",
+      roleCriteria: "",
+      description: "",
+    })
   }
 
-  const removeApprover = (index) => {
+  const removeWorkflowStep = (index) => {
     if (!selectedForm) return
     setSelectedForm({
       ...selectedForm,
-      approvers: selectedForm.approvers.filter((_, i) => i !== index),
+      workflow: {
+        ...selectedForm.workflow,
+        steps: selectedForm.workflow.steps.filter((_, i) => i !== index),
+      },
     })
   }
 
   const publishForm = async () => {
     if (!selectedForm || !selectedForm.formName || !selectedForm.department) {
       alert("Please fill in form name and department")
+      return
+    }
+
+    if (!selectedForm.workflow?.steps || selectedForm.workflow.steps.length === 0) {
+      alert("Please add at least one workflow step")
       return
     }
 
@@ -200,7 +246,7 @@ const FormBuilder = () =>{
         formName: selectedForm.formName,
         slug: selectedForm.slug || generateFieldName(selectedForm.formName),
         fields: selectedForm.fields,
-        approvers: selectedForm.approvers,
+        workflow: selectedForm.workflow,
         department: selectedForm.department,
         status: "published",
       }
@@ -241,13 +287,24 @@ const FormBuilder = () =>{
   const getStatusText = (form) => {
     return form.status || "published"
   }
+
+  const getStageLabel = (stage) => {
+    const stageObj = workflowStages.find((s) => s.value === stage)
+    return stageObj ? stageObj.label : stage
+  }
+
+  const getRoleCriteriaLabel = (criteria) => {
+    const criteriaObj = roleCriteriaOptions.find((r) => r.value === criteria)
+    return criteriaObj ? criteriaObj.label : criteria
+  }
+
   if (isBuilding && selectedForm) {
     return (
       <div className="form-builder">
         <div className="builder-header">
           <div>
             <h2>Form Builder</h2>
-            <p>Create and configure forms for data protection processes</p>
+            <p>Create and configure forms with workflow approval processes</p>
           </div>
           <div className="builder-actions">
             <button className="btn-secondary" onClick={() => setIsBuilding(false)}>
@@ -297,14 +354,14 @@ const FormBuilder = () =>{
                 >
                   <option value="">Select Department</option>
                   <option value="Legal Affairs">Legal Affairs</option>
-                  <option value="Compliance & Enforcement">Compliance & Enforcement</option>
+                  <option value="Complaints Investigation & Enforcement">Complaints Investigation & Enforcement</option>
                   <option value="Policy & Research">Policy & Research</option>
-                  <option value="Investigations">Investigations</option>
+                  <option value="Drivers">Drivers</option>
                   <option value="Public Relations">Public Relations</option>
                   <option value="Administration">Administration</option>
                   <option value="Finance & Procurement">Finance & Procurement</option>
                   <option value="Human Resources">Human Resources</option>
-                  <option value="Information Technology">Information Technology</option>
+                  <option value="Information Communication Technology">Information Communication Technology</option>
                   <option value="Other">Other</option>
                 </select>
               </div>
@@ -382,15 +439,19 @@ const FormBuilder = () =>{
                   </div>
                 )}
 
-                {newField.type === "static" && (
+                {(newField.type === "static" || newField.type === "declaration") && (
                   <div className="form-group">
-                    <label>Static Content</label>
+                    <label>{newField.type === "declaration" ? "Declaration Text" : "Static Content"}</label>
                     <textarea
                       value={newField.content || ""}
                       onChange={(e) => setNewField({ ...newField, content: e.target.value })}
                       className="form-textarea"
-                      placeholder="Enter static content"
-                      rows={3}
+                      placeholder={
+                        newField.type === "declaration"
+                          ? "Enter declaration text that users must agree to"
+                          : "Enter static content"
+                      }
+                      rows={4}
                     />
                   </div>
                 )}
@@ -403,7 +464,7 @@ const FormBuilder = () =>{
                     ((newField.type === "checkbox" || newField.type === "radio" || newField.type === "select") &&
                       (!newField.options || newField.options.length === 0)) ||
                     (newField.type === "info" && (!newField.text || newField.text.length === 0)) ||
-                    (newField.type === "static" && !newField.content)
+                    ((newField.type === "static" || newField.type === "declaration") && !newField.content)
                   }
                   type="button"
                 >
@@ -414,31 +475,79 @@ const FormBuilder = () =>{
             </div>
 
             <div className="settings-section">
-              <h3>Approvers</h3>
-              <div className="approvers-list">
-                {selectedForm.approvers.map((approver, index) => (
-                  <div key={index} className="approver-item">
-                    <span>{approver.role}</span>
-                    <button className="btn-icon" onClick={() => removeApprover(index)} type="button">
+              <h3>Workflow Steps</h3>
+              <div className="workflow-list">
+                {selectedForm.workflow?.steps?.map((step, index) => (
+                  <div key={index} className="workflow-step-item">
+                    <div className="workflow-step-info">
+                      <div className="workflow-step-header">
+                        <span className="workflow-step-number">{index + 1}</span>
+                        <div className="workflow-step-details">
+                          <h4>{getStageLabel(step.stage)}</h4>
+                          <p>{getRoleCriteriaLabel(step.roleCriteria)}</p>
+                          {step.description && <small>{step.description}</small>}
+                        </div>
+                      </div>
+                    </div>
+                    <button className="btn-icon" onClick={() => removeWorkflowStep(index)} type="button">
                       <Trash2 size={14} />
                     </button>
                   </div>
                 ))}
               </div>
-              <div className="approver-builder">
+
+              <div className="workflow-builder">
                 <div className="form-group">
-                  <label>Add Approver Role</label>
+                  <label>Workflow Stage</label>
+                  <select
+                    value={newWorkflowStep.stage}
+                    onChange={(e) => setNewWorkflowStep({ ...newWorkflowStep, stage: e.target.value })}
+                    className="form-input"
+                  >
+                    <option value="">Select Stage</option>
+                    {workflowStages.map((stage) => (
+                      <option key={stage.value} value={stage.value}>
+                        {stage.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Role Criteria</label>
+                  <select
+                    value={newWorkflowStep.roleCriteria}
+                    onChange={(e) => setNewWorkflowStep({ ...newWorkflowStep, roleCriteria: e.target.value })}
+                    className="form-input"
+                  >
+                    <option value="">Select Role Criteria</option>
+                    {roleCriteriaOptions.map((role) => (
+                      <option key={role.value} value={role.value}>
+                        {role.label}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Description (Optional)</label>
                   <input
                     type="text"
-                    value={newApprover}
-                    onChange={(e) => setNewApprover(e.target.value)}
+                    value={newWorkflowStep.description}
+                    onChange={(e) => setNewWorkflowStep({ ...newWorkflowStep, description: e.target.value })}
                     className="form-input"
-                    placeholder="Enter approver role"
+                    placeholder="Enter step description"
                   />
                 </div>
-                <button className="btn-primary" onClick={addApprover} disabled={!newApprover.trim()} type="button">
+
+                <button
+                  className="btn-primary"
+                  onClick={addWorkflowStep}
+                  disabled={!newWorkflowStep.stage || !newWorkflowStep.roleCriteria}
+                  type="button"
+                >
                   <Plus size={16} />
-                  Add Approver
+                  Add Workflow Step
                 </button>
               </div>
             </div>
@@ -451,6 +560,28 @@ const FormBuilder = () =>{
                 <h4>{selectedForm.formName}</h4>
                 <p>Department: {selectedForm.department}</p>
               </div>
+
+              {/* Workflow Preview */}
+              {selectedForm.workflow?.steps && selectedForm.workflow.steps.length > 0 && (
+                <div className="workflow-preview">
+                  <h5>Approval Workflow</h5>
+                  <div className="workflow-steps-preview">
+                    {selectedForm.workflow.steps.map((step, index) => (
+                      <div key={index} className="workflow-step-preview">
+                        <div className="step-number">{index + 1}</div>
+                        <div className="step-content">
+                          <h6>{getStageLabel(step.stage)}</h6>
+                          <p>{getRoleCriteriaLabel(step.roleCriteria)}</p>
+                        </div>
+                        {index < selectedForm.workflow.steps.length - 1 && (
+                          <ArrowRight size={16} className="step-arrow" />
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="preview-fields">
                 {selectedForm.fields.map((field, index) => (
                   <FieldPreview key={index} field={field} onRemove={() => removeField(index)} />
@@ -474,7 +605,7 @@ const FormBuilder = () =>{
         <div className="config-header">
           <div>
             <h2>Form Configurations</h2>
-            <p>Manage and create forms for data protection processes</p>
+            <p>Manage and create forms with workflow approval processes</p>
           </div>
           <div className="header-actions">
             <button className="btn-secondary" onClick={loadForms} disabled={loading}>
@@ -542,9 +673,7 @@ const FormBuilder = () =>{
                   </div>
                   <div className="form-details">
                     <p className="form-department">Department: {form.department}</p>
-                    <p className="form-approvers">
-                      Approvers: {form.approvers?.map((a) => a.role).join(", ") || "None"}
-                    </p>
+                    <p className="form-workflow">Workflow: {form.workflow?.steps?.length || 0} steps</p>
                   </div>
                 </div>
               </div>
@@ -576,4 +705,5 @@ const FormBuilder = () =>{
     </>
   )
 }
-export default FormBuilder;
+
+export default FormBuilder
