@@ -8,15 +8,16 @@
   }
   
   body {
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-family:
+      -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     background: #f8fafc;
     color: #1e293b;
     overflow: hidden;
   }
   
   /* ===========================================
-       CSS CUSTOM PROPERTIES
-       =========================================== */
+         CSS CUSTOM PROPERTIES
+         =========================================== */
   :root {
     --background: #ffffff;
     --foreground: #0f172a;
@@ -79,8 +80,8 @@
   }
   
   /* ===========================================
-       LAYOUT
-       =========================================== */
+         LAYOUT
+         =========================================== */
   .app {
     display: flex;
     width: 100vw;
@@ -124,8 +125,8 @@
   }
   
   /* ===========================================
-       SIDEBAR
-       =========================================== */
+         SIDEBAR
+         =========================================== */
   .sidebar-header {
     padding: 24px 20px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -285,8 +286,8 @@
   }
   
   /* ===========================================
-       SIDEBAR LOGOUT SECTION
-       =========================================== */
+         SIDEBAR LOGOUT SECTION
+         =========================================== */
   .sidebar-footer {
     margin-top: auto;
     padding: 20px;
@@ -326,8 +327,8 @@
   }
   
   /* ===========================================
-       LOGOUT CONFIRMATION MODAL
-       =========================================== */
+         LOGOUT CONFIRMATION MODAL
+         =========================================== */
   .logout-modal-overlay {
     position: fixed;
     top: 0;
@@ -416,8 +417,8 @@
   }
   
   /* ===========================================
-       RESPONSIVE LOGOUT STYLES
-       =========================================== */
+         RESPONSIVE LOGOUT STYLES
+         =========================================== */
   @media (max-width: 768px) {
     .logout-modal {
       margin: 20px;
@@ -436,8 +437,8 @@
   }
   
   /* ===========================================
-       TOP HEADER
-       =========================================== */
+         TOP HEADER
+         =========================================== */
   .top-header {
     height: 72px;
     background: white;
@@ -541,9 +542,16 @@
     color: #64748b;
   }
   
+  .user-department {
+    font-size: 11px;
+    color: #94a3b8;
+    font-style: italic;
+    margin-top: 2px;
+  }
+  
   /* ===========================================
-       MAIN DASHBOARD
-       =========================================== */
+         MAIN DASHBOARD
+         =========================================== */
   .main-dashboard {
     flex: 1;
     overflow-y: auto;
@@ -552,8 +560,8 @@
   }
   
   /* ===========================================
-       DASHBOARD HOME
-       =========================================== */
+         DASHBOARD HOME
+         =========================================== */
   .dashboard {
     max-width: 1200px;
     margin: 0 auto;
@@ -576,6 +584,24 @@
   .dashboard-header p {
     color: #64748b;
     font-size: 16px;
+  }
+  
+  .dashboard-header h2 {
+    font-size: 24px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 4px;
+  }
+  
+  .department-info {
+    background: #eff6ff;
+    color: #1e40af;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    margin-top: 8px;
+    display: inline-block;
+    border: 1px solid #bfdbfe;
   }
   
   .header-actions {
@@ -690,8 +716,8 @@
   }
   
   /* ===========================================
-       BUTTONS
-       =========================================== */
+         BUTTONS
+         =========================================== */
   .btn-primary {
     background: linear-gradient(135deg, #3b82f6, #1d4ed8);
     color: white;
@@ -766,8 +792,8 @@
   }
   
   /* ===========================================
-       FORM BUILDER
-       =========================================== */
+         FORM BUILDER
+         =========================================== */
   .form-builder {
     max-width: 1400px;
     margin: 0 auto;
@@ -1047,8 +1073,8 @@
   }
   
   /* ===========================================
-       SUCCESS STATE
-       =========================================== */
+         SUCCESS STATE
+         =========================================== */
   .success-state {
     display: flex;
     flex-direction: column;
@@ -1082,8 +1108,8 @@
   }
   
   /* ===========================================
-       CONFIGURATIONS
-       =========================================== */
+         CONFIGURATIONS
+         =========================================== */
   .configurations {
     max-width: 1200px;
     margin: 0 auto;
@@ -1220,8 +1246,8 @@
   }
   
   /* ===========================================
-       FIELD OPTIONS MANAGER
-       =========================================== */
+         FIELD OPTIONS MANAGER
+         =========================================== */
   .field-options-manager {
     margin-top: 16px;
   }
@@ -1270,8 +1296,8 @@
   }
   
   /* ===========================================
-       LOADING & ERROR STATES
-       =========================================== */
+         LOADING & ERROR STATES
+         =========================================== */
   .loading-state {
     display: flex;
     flex-direction: column;
@@ -1318,8 +1344,8 @@
   }
   
   /* ===========================================
-       ANIMATIONS
-       =========================================== */
+         ANIMATIONS
+         =========================================== */
   .animate-spin {
     animation: spin 1s linear infinite;
   }
@@ -1334,8 +1360,8 @@
   }
   
   /* ===========================================
-       FORM REQUESTS
-       =========================================== */
+         FORM REQUESTS
+         =========================================== */
   .form-requests {
     max-width: 1400px;
     margin: 0 auto;
@@ -1499,12 +1525,19 @@
     gap: 2px;
   }
   
-  .submitter-info div:first-child {
-    font-weight: 500;
+  .submitter-name {
+    font-weight: 600;
     color: #1e293b;
+    font-size: 14px;
   }
   
-  .submitter-info div:last-child {
+  .submitter-details {
+    font-size: 12px;
+    color: #6b7280;
+    margin-bottom: 2px;
+  }
+  
+  .submitter-role {
     font-size: 12px;
     color: #6b7280;
   }
@@ -1519,8 +1552,8 @@
   }
   
   /* ===========================================
-       MODAL
-       =========================================== */
+         MODAL
+         =========================================== */
   .modal-overlay {
     position: fixed;
     top: 0;
@@ -1588,6 +1621,208 @@
     flex: 1;
     overflow-y: auto;
     padding: 24px;
+  }
+  
+  /* Enhanced Modal Content Styling */
+  .submission-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 32px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .form-title {
+    font-size: 24px;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+  }
+  
+  .submitter-section {
+    margin-bottom: 32px;
+  }
+  
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .section-title::before {
+    content: "";
+    width: 4px;
+    height: 16px;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    border-radius: 2px;
+  }
+  
+  .submitter-card {
+    background: #f8fafc;
+    border-radius: 12px;
+    padding: 20px;
+    border: 1px solid #e2e8f0;
+  }
+  
+  .submitter-main-info {
+    margin-bottom: 16px;
+  }
+  
+  .submitter-name-large {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 4px;
+  }
+  
+  .submitter-email {
+    font-size: 14px;
+    color: #3b82f6;
+    font-weight: 500;
+  }
+  
+  .submitter-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  
+  .meta-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .meta-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .meta-value {
+    font-size: 14px;
+    font-weight: 500;
+    color: #1e293b;
+  }
+  
+  .workflow-section {
+    margin-bottom: 32px;
+  }
+  
+  .workflow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  
+  .workflow-step-card {
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+    border-left: 4px solid #d1d5db;
+    transition: all 0.2s;
+  }
+  
+  .workflow-step-card:hover {
+    border-left-color: #3b82f6;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .step-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  
+  .step-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #1e293b;
+    margin: 0;
+  }
+  
+  .step-status {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  .step-status.pending {
+    background: #fef3c7;
+    color: #92400e;
+  }
+  
+  .step-status.approved {
+    background: #dcfce7;
+    color: #166534;
+  }
+  
+  .step-status.rejected {
+    background: #fecaca;
+    color: #991b1b;
+  }
+  
+  .step-details {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .step-assignee {
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+  }
+  
+  .step-role-dept {
+    font-size: 12px;
+    color: #6b7280;
+  }
+  
+  .form-data-section {
+    margin-bottom: 0;
+  }
+  
+  .form-data-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 16px;
+  }
+  
+  .form-data-item {
+    background: white;
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid #e2e8f0;
+  }
+  
+  .field-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+  }
+  
+  .field-value {
+    font-size: 14px;
+    color: #1e293b;
+    font-weight: 500;
+    word-break: break-word;
   }
   
   .modal-footer {
@@ -1794,8 +2029,8 @@
   }
   
   /* ===========================================
-       DYNAMIC FORM RENDERER
-       =========================================== */
+         DYNAMIC FORM RENDERER
+         =========================================== */
   .dynamic-form {
     max-width: 800px;
     margin: 0 auto;
@@ -1928,8 +2163,8 @@
   }
   
   /* ===========================================
-       SIGNATURE FIELD
-       =========================================== */
+         SIGNATURE FIELD
+         =========================================== */
   .signature-field {
     margin-bottom: 24px;
   }
@@ -1966,8 +2201,8 @@
   }
   
   /* ===========================================
-       WORKFLOW STYLES
-       =========================================== */
+         WORKFLOW STYLES
+         =========================================== */
   .workflow-list {
     margin-bottom: 16px;
     max-height: 300px;
@@ -2174,8 +2409,8 @@
   }
   
   /* ===========================================
-       WORKFLOW MODAL STYLES
-       =========================================== */
+         WORKFLOW MODAL STYLES
+         =========================================== */
   .workflow-section {
     margin-bottom: 32px;
     background: #f8fafc;
@@ -2376,8 +2611,8 @@
   }
   
   /* ===========================================
-       RESPONSIVE DESIGN
-       =========================================== */
+         RESPONSIVE DESIGN
+         =========================================== */
   @media (max-width: 1024px) {
     .builder-content {
       grid-template-columns: 1fr;
@@ -2466,6 +2701,30 @@
     .modal-container {
       margin: 20px;
       max-height: calc(100vh - 40px);
+    }
+  
+    .submission-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 16px;
+    }
+  
+    .submitter-meta {
+      grid-template-columns: 1fr;
+    }
+  
+    .form-data-grid {
+      grid-template-columns: 1fr;
+    }
+  
+    .workflow-step-card {
+      padding: 12px;
+    }
+  
+    .step-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
     }
   
     .dynamic-form-header {

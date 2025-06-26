@@ -1,6 +1,6 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
+import { useState, useEffect } from "react";
 import {
   Home,
   FileText,
@@ -18,48 +18,53 @@ import {
   FormInput,
   LogOut,
   AlertTriangle,
-} from "lucide-react"
-import { getUserRole, getUserInfo } from "../utils/Auth"
-import { useNavigate } from "react-router-dom"
-import Logo from "./download.png"
+} from "lucide-react";
+import { getUserRole, getUserInfo } from "../utils/Auth";
+import { useNavigate } from "react-router-dom";
+import Logo from "./download.png";
 
-const Sidebar = ({ isCollapsed, onToggle, activeItem = "dashboard", onItemClick }) => {
-  const [userRole, setUserRole] = useState(null)
-  const [userInfo, setUserInfo] = useState(null)
-  const [loading, setLoading] = useState(true) // Add this loading state
-  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
-  const navigate = useNavigate()
+const Sidebar = ({
+  isCollapsed,
+  onToggle,
+  activeItem = "dashboard",
+  onItemClick,
+}) => {
+  const [userRole, setUserRole] = useState(null);
+  const [userInfo, setUserInfo] = useState(null);
+  const [loading, setLoading] = useState(true); // Add this loading state
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const role = getUserRole()
-    const info = getUserInfo()
-    setUserRole(role)
-    setUserInfo(info)
-    setLoading(false) // Set loading to false after data is fetched
-  }, [])
+    const role = getUserRole();
+    const info = getUserInfo();
+    setUserRole(role);
+    setUserInfo(info);
+    setLoading(false); // Set loading to false after data is fetched
+  }, []);
 
   const handleLogout = () => {
     // Clear all authentication data
-    localStorage.removeItem("authToken")
-    localStorage.removeItem("refreshToken")
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("refreshToken");
 
     // Optional: Clear any other user-related data
     // localStorage.clear(); // Use this if you want to clear everything
 
     // Redirect to login page
-    navigate("/")
-  }
+    navigate("/");
+  };
 
   const confirmLogout = () => {
-    setShowLogoutConfirm(true)
-  }
+    setShowLogoutConfirm(true);
+  };
 
   const cancelLogout = () => {
-    setShowLogoutConfirm(false)
-  }
+    setShowLogoutConfirm(false);
+  };
 
   const getMenuItems = () => {
-    const baseItems = [{ id: "dashboard", label: "Dashboard", icon: Home }]
+    const baseItems = [{ id: "dashboard", label: "Dashboard", icon: Home }];
 
     const roleBasedItems = {
       admin: [
@@ -74,48 +79,57 @@ const Sidebar = ({ isCollapsed, onToggle, activeItem = "dashboard", onItemClick 
         { id: "notifications", label: "Notifications", icon: Bell },
         { id: "help", label: "Help & Support", icon: HelpCircle },
       ],
-      reviewer: [
+      HOD: [
         { id: "requests", label: "Form Requests", icon: FileText },
-        { id: "approvals", label: "My Approvals", icon: Shield },
-        { id: "submissions", label: "Form Submissions", icon: Users },
+        { id: "form-renderer", label: "Form Renderer", icon: FormInput },
+        { id: "approvals", label: "Approvals", icon: Shield },
+        { id: "user-management", label: "User Management", icon: Users },
         { id: "notifications", label: "Notifications", icon: Bell },
-        { id: "help", label: "Help & Support", icon: HelpCircle },
       ],
+      "Assistant HOD": [
+        { id: "requests", label: "Form Requests", icon: FileText },
+        { id: "form-renderer", label: "Form Renderer", icon: FormInput },
+        { id: "approvals", label: "Approvals", icon: Shield },
+        { id: "user-management", label: "User Management", icon: Users },
+        { id: "notifications", label: "Notifications", icon: Bell },
+      ],
+      
       user: [
         { id: "requests", label: "My Requests", icon: FileText },
         { id: "form-renderer", label: "Form Renderer", icon: FormInput },
-        { id: "submissions", label: "My Submissions", icon: Users },
         { id: "notifications", label: "Notifications", icon: Bell },
-        { id: "help", label: "Help & Support", icon: HelpCircle },
-      ],
-      data_protection_officer: [
-        { id: "configurations", label: "Form Configurations", icon: Settings },
-        { id: "requests", label: "Form Requests", icon: FileText },
-        { id: "approvals", label: "Approvals", icon: Shield },
-        { id: "submissions", label: "Form Submissions", icon: Users },
-        { id: "analytics", label: "Analytics", icon: BarChart3 },
-        { id: "compliance", label: "Compliance Monitor", icon: Lock },
-        { id: "audit-logs", label: "Audit Logs", icon: FileCheck },
-        { id: "help", label: "Help & Support", icon: HelpCircle },
-      ],
-    }
+        
+      ]
+    };
 
-    const userMenuItems = roleBasedItems[userRole || "user"] || roleBasedItems["user"]
-    return [...baseItems, ...userMenuItems]
-  }
+    // Debug logging to check role matching
+    console.log("Current userRole:", userRole);
+    console.log(
+      "Available roles in roleBasedItems:",
+      Object.keys(roleBasedItems),
+    );
+
+    const userMenuItems =
+      roleBasedItems[userRole || "user"] || roleBasedItems["user"];
+    console.log("Selected menu items for role:", userRole, userMenuItems);
+
+    return [...baseItems, ...userMenuItems];
+  };
 
   const getRoleDisplayName = (role) => {
     const roleNames = {
       super_admin: "Super Administrator",
       admin: "Administrator",
+      HOD: "Head of Department",
+      "Assistant HOD": "Assistant Head of Department",
       reviewer: "Reviewer",
       user: "User",
       data_protection_officer: "Data Protection Officer",
-    }
-    return roleNames[role] || "User"
-  }
+    };
+    return roleNames[role] || role || "User";
+  };
 
-  const menuItems = getMenuItems()
+  const menuItems = getMenuItems();
 
   // Add this right after the menuItems declaration and before the return statement
   if (loading) {
@@ -124,7 +138,11 @@ const Sidebar = ({ isCollapsed, onToggle, activeItem = "dashboard", onItemClick 
         <div className="sidebar-header">
           <div className="logo-container">
             <div className="logo">
-              <img src={Logo || "/placeholder.svg"} alt="ODPC Logo" className="logo-image" />
+              <img
+                src={Logo || "/placeholder.svg"}
+                alt="ODPC Logo"
+                className="logo-image"
+              />
             </div>
             {!isCollapsed && (
               <div className="logo-text">
@@ -134,18 +152,31 @@ const Sidebar = ({ isCollapsed, onToggle, activeItem = "dashboard", onItemClick 
             )}
           </div>
           <button className="toggle-btn" onClick={onToggle}>
-            {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+            {isCollapsed ? (
+              <ChevronRight size={20} />
+            ) : (
+              <ChevronLeft size={20} />
+            )}
           </button>
         </div>
 
-        <div className="loading-state" style={{ padding: "20px", textAlign: "center", color: "rgba(255,255,255,0.7)" }}>
+        <div
+          className="loading-state"
+          style={{
+            padding: "20px",
+            textAlign: "center",
+            color: "rgba(255,255,255,0.7)",
+          }}
+        >
           <div className="loading-spinner" style={{ marginBottom: "8px" }}>
             <UserCheck size={24} className="animate-spin" />
           </div>
-          {!isCollapsed && <p style={{ fontSize: "14px", margin: 0 }}>Loading...</p>}
+          {!isCollapsed && (
+            <p style={{ fontSize: "14px", margin: 0 }}>Loading...</p>
+          )}
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -154,7 +185,11 @@ const Sidebar = ({ isCollapsed, onToggle, activeItem = "dashboard", onItemClick 
         <div className="sidebar-header">
           <div className="logo-container">
             <div className="logo">
-              <img src={Logo || "/placeholder.svg"} alt="ODPC Logo" className="logo-image" />
+              <img
+                src={Logo || "/placeholder.svg"}
+                alt="ODPC Logo"
+                className="logo-image"
+              />
             </div>
             {!isCollapsed && (
               <div className="logo-text">
@@ -164,7 +199,11 @@ const Sidebar = ({ isCollapsed, onToggle, activeItem = "dashboard", onItemClick 
             )}
           </div>
           <button className="toggle-btn" onClick={onToggle}>
-            {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+            {isCollapsed ? (
+              <ChevronRight size={20} />
+            ) : (
+              <ChevronLeft size={20} />
+            )}
           </button>
         </div>
 
@@ -175,15 +214,19 @@ const Sidebar = ({ isCollapsed, onToggle, activeItem = "dashboard", onItemClick 
             </div>
             <div className="user-details">
               <h4>{userInfo.fullName}</h4>
-              <p className="user-role-badge">{getRoleDisplayName(userRole || "user")}</p>
-              {userInfo.department && <p className="user-department">{userInfo.department}</p>}
+              <p className="user-role-badge">
+                {getRoleDisplayName(userRole || "user")}
+              </p>
+              {userInfo.department && (
+                <p className="user-department">{userInfo.department}</p>
+              )}
             </div>
           </div>
         )}
 
         <nav className="sidebar-nav">
           {menuItems.map((item) => {
-            const Icon = item.icon
+            const Icon = item.icon;
             return (
               <button
                 key={item.id}
@@ -194,13 +237,17 @@ const Sidebar = ({ isCollapsed, onToggle, activeItem = "dashboard", onItemClick 
                 <Icon size={20} />
                 {!isCollapsed && <span>{item.label}</span>}
               </button>
-            )
+            );
           })}
         </nav>
 
         {/* Logout Section */}
         <div className="sidebar-footer">
-          <button className="logout-btn" onClick={confirmLogout} title={isCollapsed ? "Logout" : ""}>
+          <button
+            className="logout-btn"
+            onClick={confirmLogout}
+            title={isCollapsed ? "Logout" : ""}
+          >
             <LogOut size={20} />
             {!isCollapsed && <span>Logout</span>}
           </button>
@@ -226,7 +273,10 @@ const Sidebar = ({ isCollapsed, onToggle, activeItem = "dashboard", onItemClick 
               <h3>Confirm Logout</h3>
             </div>
             <div className="logout-modal-content">
-              <p>Are you sure you want to logout? You will need to sign in again to access the system.</p>
+              <p>
+                Are you sure you want to logout? You will need to sign in again
+                to access the system.
+              </p>
             </div>
             <div className="logout-modal-actions">
               <button className="btn-secondary" onClick={cancelLogout}>
@@ -241,7 +291,7 @@ const Sidebar = ({ isCollapsed, onToggle, activeItem = "dashboard", onItemClick 
         </div>
       )}
     </>
-  )
-}
+  );
+};
 
-export default Sidebar
+export default Sidebar;
