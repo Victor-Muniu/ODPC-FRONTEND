@@ -10,13 +10,17 @@ function FormRequest() {
   const [selectedSubmission, setSelectedSubmission] = useState(null)
   const [viewModalOpen, setViewModalOpen] = useState(false)
   const [statusFilter, setStatusFilter] = useState("all")
+  const [userRole, setUserRole] = useState(null)
 
   useEffect(() => {
+    const role = localStorage.getItem("userRole")
+    setUserRole(role)
     loadFormRequests()
   }, [])
 
   const fetchFormRequests = async () => {
-    const response = await fetch("http://localhost:5000/all", {
+    const endpoint = userRole === "admin" ? "http://localhost:5000/all" : "http://localhost:5000/mine"
+    const response = await fetch(endpoint, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -27,15 +31,45 @@ function FormRequest() {
     return await response.json()
   }
 
+  const normalizeSubmissionData = (rawSubmissions, isAdminData = true) => {
+    if (isAdminData) return rawSubmissions
+    return rawSubmissions.map(submission => ({
+      submissionId: submission.id,
+      formCollection: submission.form,
+      formName: submission.formSlug.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+      department: submission.submittedBy.department,
+      status: submission.status.replace(/_/g, ' '),
+      submittedBy: {
+        email: submission.submittedBy.email || 'N/A',
+        role: submission.submittedBy.role || 'N/A',
+        department: submission.submittedBy.department,
+        uid: submission.submittedBy.uid
+      },
+      submittedAt: {
+        _seconds: Math.floor(submission.createdAt / 1000)
+      },
+      workflow: submission.workflow,
+      ...Object.keys(submission).reduce((acc, key) => {
+        if (!['id', 'form', 'formSlug', 'submittedBy', 'workflow', 'status', 'createdAt'].includes(key)) {
+          acc[key] = submission[key]
+        }
+        return acc
+      }, {})
+    }))
+  }
+
   const loadFormRequests = async () => {
     try {
       setLoading(true)
       setError(null)
       const response = await fetchFormRequests()
-      setSubmissions(response.submissions)
-      groupSubmissionsByCollection(response.submissions)
+      const isAdminData = userRole === "admin"
+      const normalizedSubmissions = normalizeSubmissionData(response.submissions, isAdminData)
+      setSubmissions(normalizedSubmissions)
+      groupSubmissionsByCollection(normalizedSubmissions)
     } catch (err) {
       setError("Failed to load form requests. Please try again.")
+      console.error("Error loading form requests:", err)
     } finally {
       setLoading(false)
     }
@@ -43,7 +77,7 @@ function FormRequest() {
 
   const groupSubmissionsByCollection = (subs) => {
     const grouped = {}
-    subs.forEach((submission) => {
+    subs.forEach(submission => {
       const { formCollection, formName, department } = submission
       if (!grouped[formCollection]) {
         grouped[formCollection] = {
@@ -71,16 +105,12 @@ function FormRequest() {
 
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
-      case "approved":
-        return "#10b981"
+      case "approved": return "#10b981"
       case "pending":
-        return "#f59e0b"
-      case "rejected":
-        return "#ef4444"
-      case "under review":
-        return "#3b82f6"
-      default:
-        return "#6b7280"
+      case "pending recommendation": return "#f59e0b"
+      case "rejected": return "#ef4444"
+      case "under review": return "#3b82f6"
+      default: return "#6b7280"
     }
   }
 
@@ -96,16 +126,17 @@ function FormRequest() {
   }
 
   const getDynamicFields = (submission) => {
-    const exclude = ["submissionId", "formCollection", "formName", "department", "status", "submittedBy", "submittedAt"]
+    const exclude = ["submissionId", "formCollection", "formName", "department", "status", "submittedBy", "submittedAt", "workflow"]
     return Object.entries(submission).filter(([key]) => !exclude.includes(key))
   }
 
-  const getUniqueStatuses = () => Array.from(new Set(submissions.map((s) => s.status)))
+  const getUniqueStatuses = () => Array.from(new Set(submissions.map(s => s.status)))
 
   const filteredSubmissions = (subs) => {
     if (statusFilter === "all") return subs
-    return subs.filter((s) => s.status.toLowerCase() === statusFilter.toLowerCase())
+    return subs.filter(s => s.status.toLowerCase() === statusFilter.toLowerCase())
   }
+
   if (loading) {
     return (
       <div className="form-requests">
@@ -124,40 +155,37 @@ function FormRequest() {
       <div className="form-requests">
         <div className="error-banner">
           <p>{error}</p>
-          <button onClick={loadFormRequests} className="btn-text">
-            Try Again
-          </button>
+          <button onClick={loadFormRequests} className="btn-text">Try Again</button>
         </div>
       </div>
     )
   }
+
   return (
     <>
       <div className="form-requests">
         <div className="requests-header">
           <div>
-            <h2>Form Requests</h2>
-            <p>View and manage all form submissions across departments</p>
+            <h2>{userRole === "admin" ? "All Form Requests" : "My Form Requests"}</h2>
+            <p>{userRole === "admin"
+              ? "View and manage all form submissions across departments"
+              : "View your form submissions and their status"}</p>
           </div>
           <div className="header-actions">
             <div className="filter-group">
               <Filter size={16} />
-              <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="form-select">
+              <select value={statusFilter} onChange={e => setStatusFilter(e.target.value)} className="form-select">
                 <option value="all">All Status</option>
-                {getUniqueStatuses().map((status) => (
-                  <option key={status} value={status}>
-                    {status}
-                  </option>
+                {getUniqueStatuses().map(status => (
+                  <option key={status} value={status}>{status}</option>
                 ))}
               </select>
             </div>
             <button className="btn-secondary" onClick={loadFormRequests}>
-              <RefreshCw size={16} />
-              Refresh
+              <RefreshCw size={16} /> Refresh
             </button>
             <button className="btn-primary">
-              <Download size={16} />
-              Export
+              <Download size={16} /> Export
             </button>
           </div>
         </div>
@@ -178,18 +206,14 @@ function FormRequest() {
                     <div className="group-details">
                       <h3>{group.formName}</h3>
                       <div className="group-meta">
-                        <span className="department-badge">
-                          <Building size={14} /> {group.department}
-                        </span>
-                        <span className="submissions-count">
-                          <FileText size={14} /> {filteredSubs.length} submission{filteredSubs.length !== 1 ? "s" : ""}
-                        </span>
+                        <span className="department-badge"><Building size={14} /> {group.department}</span>
+                        <span className="submissions-count"><FileText size={14} /> {filteredSubs.length} submission{filteredSubs.length !== 1 ? "s" : ""}</span>
                       </div>
                     </div>
                   </div>
                   <div className="group-status-summary">
-                    {getUniqueStatuses().map((status) => {
-                      const count = filteredSubs.filter((s) => s.status === status).length
+                    {getUniqueStatuses().map(status => {
+                      const count = filteredSubs.filter(s => s.status === status).length
                       if (count === 0) return null
                       return (
                         <span
@@ -214,26 +238,21 @@ function FormRequest() {
                             <th>Submitted By</th>
                             <th>Submitted At</th>
                             <th>Status</th>
-                            {filteredSubs.length > 0 &&
-                              getDynamicFields(filteredSubs[0]).map(([key]) => <th key={key}>{key}</th>)}
+                            {filteredSubs.length > 0 && getDynamicFields(filteredSubs[0]).map(([key]) => <th key={key}>{key}</th>)}
                             <th>Actions</th>
                           </tr>
                         </thead>
                         <tbody>
-                          {filteredSubs.map((submission) => (
+                          {filteredSubs.map(submission => (
                             <tr key={submission.submissionId}>
                               <td>{submission.submissionId.substring(0, 8)}...</td>
                               <td>
                                 <div className="submitter-info">
                                   <div>{submission.submittedBy.email}</div>
-                                  <div>
-                                    {submission.submittedBy.role} • {submission.submittedBy.department}
-                                  </div>
+                                  <div>{submission.submittedBy.role} • {submission.submittedBy.department}</div>
                                 </div>
                               </td>
-                              <td>
-                                <Calendar size={14} /> {formatDate(submission.submittedAt)}
-                              </td>
+                              <td><Calendar size={14} /> {formatDate(submission.submittedAt)}</td>
                               <td>
                                 <span
                                   className="status-badge"
@@ -246,9 +265,7 @@ function FormRequest() {
                                 </span>
                               </td>
                               {getDynamicFields(submission).map(([key, value]) => (
-                                <td key={key}>
-                                  {String(value).length > 50 ? `${value.substring(0, 50)}...` : String(value)}
-                                </td>
+                                <td key={key}>{String(value).length > 50 ? `${String(value).substring(0, 50)}...` : String(value)}</td>
                               ))}
                               <td>
                                 <button className="btn-icon" onClick={() => handleViewSubmission(submission)}>
@@ -298,64 +315,59 @@ const SubmissionDetailModal = ({ submission, isOpen, onClose }) => {
 
   const getStatusColor = (status) => {
     switch (status.toLowerCase()) {
-      case "approved":
-        return "#10b981"
+      case "approved": return "#10b981"
       case "pending":
-        return "#f59e0b"
-      case "rejected":
-        return "#ef4444"
-      case "under review":
-        return "#3b82f6"
-      default:
-        return "#6b7280"
+      case "pending recommendation": return "#f59e0b"
+      case "rejected": return "#ef4444"
+      case "under review": return "#3b82f6"
+      default: return "#6b7280"
     }
   }
 
   const getDynamicFields = (submission) => {
-    const exclude = ["submissionId", "formCollection", "formName", "department", "status", "submittedBy", "submittedAt"]
+    const exclude = ["submissionId", "formCollection", "formName", "department", "status", "submittedBy", "submittedAt", "workflow"]
     return Object.entries(submission).filter(([key]) => !exclude.includes(key))
   }
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-container submission-modal" onClick={(e) => e.stopPropagation()}>
+      <div className="modal-container submission-modal" onClick={e => e.stopPropagation()}>
         <div className="modal-header">
           <h2>Submission Details</h2>
-          <button className="modal-close" onClick={onClose}>
-            ×
-          </button>
+          <button className="modal-close" onClick={onClose}>×</button>
         </div>
-
         <div className="modal-content">
           <h3>{submission.formName}</h3>
           <div>
-            <strong>Email:</strong> {submission.submittedBy.email}
-            <br />
-            <strong>Role:</strong> {submission.submittedBy.role}
-            <br />
-            <strong>Department:</strong> {submission.submittedBy.department}
-            <br />
-            <strong>Submitted:</strong> {formatDate(submission.submittedAt)}
-            <br />
-            <strong>Status:</strong>{" "}
-            <span style={{ color: getStatusColor(submission.status) }}>{submission.status}</span>
+            <strong>Email:</strong> {submission.submittedBy.email}<br />
+            <strong>Role:</strong> {submission.submittedBy.role}<br />
+            <strong>Department:</strong> {submission.submittedBy.department}<br />
+            <strong>Submitted:</strong> {formatDate(submission.submittedAt)}<br />
+            <strong>Status:</strong> <span style={{ color: getStatusColor(submission.status) }}>{submission.status}</span>
           </div>
+
+          {submission.workflow && (
+            <div>
+              <h4>Workflow Status</h4>
+              {Object.entries(submission.workflow).map(([key, value]) => (
+                <div key={key}>
+                  <strong>{key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}:</strong><br />
+                  Name: {value.name || 'N/A'} | Role: {value.role || 'N/A'} | Status: {value.status || 'N/A'}
+                </div>
+              ))}
+            </div>
+          )}
 
           <h4>Form Data</h4>
           {getDynamicFields(submission).map(([key, value]) => (
-            <p key={key}>
-              <strong>{key}:</strong> {String(value)}
-            </p>
+            <p key={key}><strong>{key}:</strong> {String(value)}</p>
           ))}
         </div>
 
         <div className="modal-footer">
-          <button className="btn-secondary" onClick={onClose}>
-            Close
-          </button>
+          <button className="btn-secondary" onClick={onClose}>Close</button>
           <button className="btn-primary">
-            <Download size={16} />
-            Export PDF
+            <Download size={16} /> Export PDF
           </button>
         </div>
       </div>

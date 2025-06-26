@@ -83,6 +83,7 @@ const Sidebar = ({ isCollapsed, onToggle, activeItem = "dashboard", onItemClick 
       ],
       user: [
         { id: "requests", label: "My Requests", icon: FileText },
+        { id: "form-renderer", label: "Form Renderer", icon: FormInput },
         { id: "submissions", label: "My Submissions", icon: Users },
         { id: "notifications", label: "Notifications", icon: Bell },
         { id: "help", label: "Help & Support", icon: HelpCircle },
