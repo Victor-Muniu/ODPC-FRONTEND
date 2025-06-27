@@ -13,10 +13,8 @@ import {
   ChevronRight,
   UserCheck,
   Bell,
-  Lock,
-  FileCheck,
-  FormInput,
   LogOut,
+  FormInput,
   AlertTriangle,
 } from "lucide-react";
 import { getUserRole, getUserInfo } from "../utils/Auth";
@@ -31,37 +29,27 @@ const Sidebar = ({
 }) => {
   const [userRole, setUserRole] = useState(null);
   const [userInfo, setUserInfo] = useState(null);
-  const [loading, setLoading] = useState(true); // Add this loading state
+  const [loading, setLoading] = useState(true);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const role = getUserRole();
     const info = getUserInfo();
+    console.log("Raw role from storage:", role); // For debugging
     setUserRole(role);
     setUserInfo(info);
-    setLoading(false); // Set loading to false after data is fetched
+    setLoading(false);
   }, []);
 
   const handleLogout = () => {
-    // Clear all authentication data
     localStorage.removeItem("authToken");
     localStorage.removeItem("refreshToken");
-
-    // Optional: Clear any other user-related data
-    // localStorage.clear(); // Use this if you want to clear everything
-
-    // Redirect to login page
     navigate("/");
   };
 
-  const confirmLogout = () => {
-    setShowLogoutConfirm(true);
-  };
-
-  const cancelLogout = () => {
-    setShowLogoutConfirm(false);
-  };
+  const confirmLogout = () => setShowLogoutConfirm(true);
+  const cancelLogout = () => setShowLogoutConfirm(false);
 
   const getMenuItems = () => {
     const baseItems = [{ id: "dashboard", label: "Dashboard", icon: Home }];
@@ -70,7 +58,6 @@ const Sidebar = ({
       admin: [
         { id: "configurations", label: "Form Configurations", icon: Settings },
         { id: "form-renderer", label: "Form Renderer", icon: FormInput },
-
         { id: "requests", label: "Form Requests", icon: FileText },
         { id: "approvals", label: "Approvals", icon: Shield },
         { id: "submissions", label: "Form Submissions", icon: Users },
@@ -79,40 +66,31 @@ const Sidebar = ({
         { id: "notifications", label: "Notifications", icon: Bell },
         { id: "help", label: "Help & Support", icon: HelpCircle },
       ],
-      HOD: [
+      hod: [
         { id: "requests", label: "Form Requests", icon: FileText },
         { id: "form-renderer", label: "Form Renderer", icon: FormInput },
         { id: "approvals", label: "Approvals", icon: Shield },
         { id: "user-management", label: "User Management", icon: Users },
         { id: "notifications", label: "Notifications", icon: Bell },
       ],
-      "Assistant HOD": [
+      assistanthod: [
         { id: "requests", label: "Form Requests", icon: FileText },
         { id: "form-renderer", label: "Form Renderer", icon: FormInput },
         { id: "approvals", label: "Approvals", icon: Shield },
         { id: "user-management", label: "User Management", icon: Users },
         { id: "notifications", label: "Notifications", icon: Bell },
       ],
-      
       user: [
         { id: "requests", label: "My Requests", icon: FileText },
         { id: "form-renderer", label: "Form Renderer", icon: FormInput },
         { id: "notifications", label: "Notifications", icon: Bell },
-        
-      ]
+      ],
     };
 
-    // Debug logging to check role matching
-    console.log("Current userRole:", userRole);
-    console.log(
-      "Available roles in roleBasedItems:",
-      Object.keys(roleBasedItems),
-    );
+    const normalizedRole = (userRole || "user").toLowerCase().replace(/\s+/g, "");
+    const userMenuItems = roleBasedItems[normalizedRole] || roleBasedItems["user"];
 
-    const userMenuItems =
-      roleBasedItems[userRole || "user"] || roleBasedItems["user"];
-    console.log("Selected menu items for role:", userRole, userMenuItems);
-
+    console.log("Selected menu items for role:", normalizedRole, userMenuItems);
     return [...baseItems, ...userMenuItems];
   };
 
@@ -120,18 +98,17 @@ const Sidebar = ({
     const roleNames = {
       super_admin: "Super Administrator",
       admin: "Administrator",
-      HOD: "Head of Department",
-      "Assistant HOD": "Assistant Head of Department",
+      hod: "Head of Department",
+      assistanthod: "Assistant Head of Department",
       reviewer: "Reviewer",
       user: "User",
       data_protection_officer: "Data Protection Officer",
     };
-    return roleNames[role] || role || "User";
+    return roleNames[role?.toLowerCase().replace(/\s+/g, "")] || "User";
   };
 
   const menuItems = getMenuItems();
 
-  // Add this right after the menuItems declaration and before the return statement
   if (loading) {
     return (
       <div className={`sidebar ${isCollapsed ? "collapsed" : ""}`}>
@@ -152,28 +129,15 @@ const Sidebar = ({
             )}
           </div>
           <button className="toggle-btn" onClick={onToggle}>
-            {isCollapsed ? (
-              <ChevronRight size={20} />
-            ) : (
-              <ChevronLeft size={20} />
-            )}
+            {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
           </button>
         </div>
 
-        <div
-          className="loading-state"
-          style={{
-            padding: "20px",
-            textAlign: "center",
-            color: "rgba(255,255,255,0.7)",
-          }}
-        >
+        <div className="loading-state" style={{ padding: "20px", textAlign: "center", color: "rgba(255,255,255,0.7)" }}>
           <div className="loading-spinner" style={{ marginBottom: "8px" }}>
             <UserCheck size={24} className="animate-spin" />
           </div>
-          {!isCollapsed && (
-            <p style={{ fontSize: "14px", margin: 0 }}>Loading...</p>
-          )}
+          {!isCollapsed && <p style={{ fontSize: "14px", margin: 0 }}>Loading...</p>}
         </div>
       </div>
     );
@@ -199,11 +163,7 @@ const Sidebar = ({
             )}
           </div>
           <button className="toggle-btn" onClick={onToggle}>
-            {isCollapsed ? (
-              <ChevronRight size={20} />
-            ) : (
-              <ChevronLeft size={20} />
-            )}
+            {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
           </button>
         </div>
 
@@ -241,7 +201,6 @@ const Sidebar = ({
           })}
         </nav>
 
-        {/* Logout Section */}
         <div className="sidebar-footer">
           <button
             className="logout-btn"
@@ -262,7 +221,6 @@ const Sidebar = ({
         )}
       </div>
 
-      {/* Logout Confirmation Modal */}
       {showLogoutConfirm && (
         <div className="logout-modal-overlay">
           <div className="logout-modal">

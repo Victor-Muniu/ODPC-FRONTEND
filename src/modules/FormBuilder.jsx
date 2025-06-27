@@ -361,7 +361,7 @@ const FormBuilder = () => {
                   <option value="Administration">Administration</option>
                   <option value="Finance & Procurement">Finance & Procurement</option>
                   <option value="Human Resources">Human Resources</option>
-                  <option value="Information Communication Technology">Information Communication Technology</option>
+                  <option value="Information Communication and Technology">Information Communication and Technology</option>
                   <option value="Other">Other</option>
                 </select>
               </div>

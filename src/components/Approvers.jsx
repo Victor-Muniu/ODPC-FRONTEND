@@ -47,7 +47,7 @@ const Approvers = () => {
 
   useEffect(() => {
     filterApprovals();
-  }, [approvals, searchTerm, statusFilter]);
+  }, [approvals, searchTerm, statusFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadPendingApprovals = async () => {
     try {
@@ -203,10 +203,10 @@ const Approvers = () => {
       alert("Please provide a signature before submitting.");
       return;
     }
-  
+
     try {
       setIsSubmitting(true);
-  
+
       const decisionData = {
         status: decisionType === "approve" ? "recommended" : "declined",
         by: userInfo.uid,
@@ -215,7 +215,7 @@ const Approvers = () => {
         comments: comments?.trim() || "",
       };
       console.log("Submitting decision data:", decisionData);
-  
+
       const response = await fetch(
         `http://localhost:5000/recommend/${selectedApproval.id}`,
         {
@@ -225,16 +225,16 @@ const Approvers = () => {
             Authorization: `Bearer ${localStorage.getItem("authToken")}`,
           },
           body: JSON.stringify(decisionData),
-        }
+        },
       );
-  
+
       if (!response.ok) {
         throw new Error("Failed to submit decision");
       }
-  
+
       // Refresh the approvals list
       await loadPendingApprovals();
-  
+
       // Close modal
       setShowDecisionModal(false);
       setSelectedApproval(null);
