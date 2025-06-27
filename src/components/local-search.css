@@ -1,0 +1,60 @@
+/* Local Search Component Styles */
+.local-search-container {
+    display: flex;
+    align-items: center;
+    background: #f9fafb;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    padding: 6px 10px;
+    min-width: 240px;
+    margin-right: 12px;
+  }
+  
+  .local-search-container svg {
+    color: #6b7280;
+    margin-right: 8px;
+    flex-shrink: 0;
+  }
+  
+  .local-search-input {
+    background: none;
+    border: none;
+    outline: none;
+    flex: 1;
+    font-size: 14px;
+    color: #111827;
+  }
+  
+  .local-search-input::placeholder {
+    color: #9ca3af;
+  }
+  
+  .local-search-container:focus-within {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+  }
+  
+  /* Update header-actions to handle flex layout */
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  
+  @media (max-width: 768px) {
+    .local-search-container {
+      min-width: 200px;
+    }
+  
+    .header-actions {
+      flex-direction: column;
+      align-items: stretch;
+      gap: 8px;
+    }
+  
+    .local-search-container {
+      width: 100%;
+    }
+  }
+  

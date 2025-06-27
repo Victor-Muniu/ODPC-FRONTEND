@@ -20,14 +20,16 @@ import {
   Target,
 } from "lucide-react";
 import { getUserInfo } from "../utils/Auth";
+import { useSearch } from "../contexts/SearchContext";
 import "./Approvers.css";
+import "./local-search.css";
 
 const Approvers = () => {
   const [approvals, setApprovals] = useState([]);
   const [filteredApprovals, setFilteredApprovals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [localSearchTerm, setLocalSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [selectedApproval, setSelectedApproval] = useState(null);
   const [showDecisionModal, setShowDecisionModal] = useState(false);
@@ -39,6 +41,8 @@ const Approvers = () => {
   const [isDrawing, setIsDrawing] = useState(false);
   const [signatureData, setSignatureData] = useState("");
 
+  const { searchTerm } = useSearch();
+
   useEffect(() => {
     const info = getUserInfo();
     setUserInfo(info);
@@ -47,7 +51,7 @@ const Approvers = () => {
 
   useEffect(() => {
     filterApprovals();
-  }, [approvals, searchTerm, statusFilter]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [approvals, localSearchTerm, searchTerm, statusFilter]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadPendingApprovals = async () => {
     try {
@@ -77,16 +81,19 @@ const Approvers = () => {
 
   const filterApprovals = () => {
     let filtered = approvals;
+    const searchToUse = localSearchTerm || searchTerm;
 
-    // Filter by search term
-    if (searchTerm) {
+    // Filter by search term (both global and local)
+    if (searchToUse) {
       filtered = filtered.filter(
         (approval) =>
-          approval.formSlug.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          approval.submittedBy.department
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          approval.id.toLowerCase().includes(searchTerm.toLowerCase()),
+          approval.formSlug
+            ?.toLowerCase()
+            .includes(searchToUse.toLowerCase()) ||
+          approval.submittedBy?.department
+            ?.toLowerCase()
+            .includes(searchToUse.toLowerCase()) ||
+          approval.id?.toLowerCase().includes(searchToUse.toLowerCase()),
       );
     }
 
@@ -318,8 +325,8 @@ const Approvers = () => {
           <input
             type="text"
             placeholder="Search by form name, department, or ID..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            value={localSearchTerm}
+            onChange={(e) => setLocalSearchTerm(e.target.value)}
             className="search-input"
           />
         </div>

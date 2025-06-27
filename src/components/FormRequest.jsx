@@ -9,7 +9,10 @@ import {
   FileText,
   ChevronDown,
   ChevronRight,
+  Search,
 } from "lucide-react";
+import { useSearch } from "../contexts/SearchContext";
+import "./local-search.css";
 
 function FormRequest() {
   const [submissions, setSubmissions] = useState([]);
@@ -21,6 +24,9 @@ function FormRequest() {
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [statusFilter, setStatusFilter] = useState("all");
   const [userRole, setUserRole] = useState(null);
+  const [localSearchTerm, setLocalSearchTerm] = useState("");
+
+  const { searchTerm } = useSearch();
 
   useEffect(() => {
     const role = localStorage.getItem("userRole");
@@ -144,6 +150,40 @@ function FormRequest() {
     setExpandedGroups(new Set(Object.keys(grouped)));
   };
 
+  // Filter submissions based on search term (both global and local)
+  const getFilteredSubmissions = (subs) => {
+    let filtered = subs;
+    const searchToUse = localSearchTerm || searchTerm;
+
+    // Apply search filter
+    if (searchToUse) {
+      filtered = filtered.filter(
+        (submission) =>
+          submission.formName
+            ?.toLowerCase()
+            .includes(searchToUse.toLowerCase()) ||
+          submission.submittedBy?.department
+            ?.toLowerCase()
+            .includes(searchToUse.toLowerCase()) ||
+          submission.submittedBy?.name
+            ?.toLowerCase()
+            .includes(searchToUse.toLowerCase()) ||
+          submission.submissionId
+            ?.toLowerCase()
+            .includes(searchToUse.toLowerCase()),
+      );
+    }
+
+    // Apply status filter
+    if (statusFilter !== "all") {
+      filtered = filtered.filter(
+        (s) => s.status.toLowerCase() === statusFilter.toLowerCase(),
+      );
+    }
+
+    return filtered;
+  };
+
   const formatDate = (timestamp) => {
     const date = new Date(timestamp._seconds * 1000);
     return date.toLocaleDateString("en-US", {
@@ -201,11 +241,9 @@ function FormRequest() {
   const getUniqueStatuses = () =>
     Array.from(new Set(submissions.map((s) => s.status)));
 
+  // Keep the old function for backward compatibility in the component
   const filteredSubmissions = (subs) => {
-    if (statusFilter === "all") return subs;
-    return subs.filter(
-      (s) => s.status.toLowerCase() === statusFilter.toLowerCase(),
-    );
+    return getFilteredSubmissions(subs);
   };
 
   if (loading) {
@@ -249,6 +287,16 @@ function FormRequest() {
             </p>
           </div>
           <div className="header-actions">
+            <div className="local-search-container">
+              <Search size={16} />
+              <input
+                type="text"
+                placeholder="Search requests..."
+                value={localSearchTerm}
+                onChange={(e) => setLocalSearchTerm(e.target.value)}
+                className="local-search-input"
+              />
+            </div>
             <div className="filter-group">
               <Filter size={16} />
               <select
